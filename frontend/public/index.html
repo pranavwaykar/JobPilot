@@ -27,8 +27,13 @@
         </div>
       </header>
 
+      <div class="tabs">
+        <button class="tab active" id="tabSend" type="button">Send</button>
+        <button class="tab" id="tabHr" type="button">HR Finder</button>
+      </div>
+
       <main class="grid">
-        <section class="card">
+        <section class="card tabPanel" id="panelSend">
           <div class="cardTitle">Compose & Send</div>
           <div class="cardHint">
             <strong>Email is mandatory.</strong> Subject / Body / Resume are optional. If you leave
@@ -105,7 +110,46 @@
           </form>
         </section>
 
-        <aside class="card">
+        <section class="card tabPanel hidden" id="panelHr">
+          <div class="cardTitle">HR / Talent Acquisition Finder</div>
+          <div class="cardHint">
+            Enter a company name or domain and get a list of <strong>HR / Talent Acquisition</strong> emails.
+            (Requires server API keys to be configured.)
+          </div>
+
+          <div class="row twoCol">
+            <div>
+              <label class="label" for="company">Company name (optional)</label>
+              <input id="company" type="text" placeholder="e.g. TCS, Infosys, Google" />
+            </div>
+            <div>
+              <label class="label" for="domain">Company domain (recommended)</label>
+              <input id="domain" type="text" placeholder="e.g. company.com" />
+            </div>
+          </div>
+
+          <div class="row">
+            <label class="label" for="provider">Provider</label>
+            <select id="provider">
+              <option value="hunter" selected>Hunter</option>
+              <option value="apollo">Apollo</option>
+            </select>
+            <div class="micro">
+              Apollo here means <strong>Apollo.io</strong> (people/contact database), not Apollo GraphQL (rover).
+            </div>
+          </div>
+
+          <div class="actions">
+            <button id="hrSearchBtn" class="btn" type="button">Search</button>
+            <button id="hrCopyBtn" class="btn secondary" type="button">Copy emails</button>
+            <button id="hrCopyPhoneBtn" class="btn secondary" type="button">Copy phone</button>
+          </div>
+
+          <div class="divider"></div>
+          <div id="hrResults" class="status empty">Search results will appear here.</div>
+        </section>
+
+        <aside class="card" id="panelSide">
           <div class="cardTitle">Status</div>
           <div id="status" class="status empty">
             Fill the form and click <strong>Send Email</strong>.

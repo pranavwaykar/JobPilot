@@ -18,7 +18,7 @@ app.use(express.urlencoded({ extended: true }));
 const upload = multer({
   dest: path.join(os.tmpdir(), "job-mailer-uploads"),
   limits: {
-    fileSize: 8 * 1024 * 1024, // 8MB
+    fileSize: 12 * 1024 * 1024, // 12MB
   },
 });
 
@@ -28,6 +28,16 @@ function normalizeEmail(email) {
 
 function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function normalizeDomain(domain) {
+  const d = String(domain || "")
+    .trim()
+    .toLowerCase()
+    .replace(/^https?:\/\//, "")
+    .replace(/^www\./, "")
+    .replace(/\/.*$/, "");
+  return d;
 }
 
 function escapeHtml(s) {
@@ -264,6 +274,247 @@ app.use((req, res, next) => {
 
 // Serve UI (protected if auth enabled)
 app.use(express.static(UI_DIR));
+
+// -------------------------
+// HR / Talent lookup (optional)
+// -------------------------
+const HUNTER_API_KEY = String(process.env.HUNTER_API_KEY || "").trim();
+const HR_PROVIDER_DEFAULT = String(process.env.HR_PROVIDER || "hunter").trim().toLowerCase();
+
+// Apollo.io (people database) integration (requires Apollo.io API key)
+const APOLLO_API_KEY = String(process.env.APOLLO_API_KEY || "").trim();
+const APOLLO_BASE_URL = String(process.env.APOLLO_BASE_URL || "https://api.apollo.io").trim();
+const APOLLO_ENDPOINT = String(process.env.APOLLO_ENDPOINT || "/v1/mixed_people/search").trim();
+
+function looksLikeApolloGraphOSKey(key) {
+  const k = String(key || "").trim();
+  return k.startsWith("service:");
+}
+
+// Provider status for UI (no secrets returned)
+app.get("/api/provider-status", (_req, res) => {
+  res.json({
+    ok: true,
+    providers: {
+      hunter: { configured: Boolean(HUNTER_API_KEY) },
+      apollo: {
+        configured: Boolean(APOLLO_API_KEY),
+        looksLikeGraphOS: looksLikeApolloGraphOSKey(APOLLO_API_KEY),
+      },
+    },
+  });
+});
+
+function isRecruitingRole(s) {
+  const v = String(s || "").toLowerCase();
+  return (
+    v.includes("talent") ||
+    v.includes("recruit") ||
+    v.includes("hr") ||
+    v.includes("human resources") ||
+    v.includes("people ops") ||
+    v.includes("people operations")
+  );
+}
+
+async function resolveDomainFromCompany(company) {
+  const q = String(company || "").trim();
+  if (!q) return null;
+  const url = `https://autocomplete.clearbit.com/v1/companies/suggest?query=${encodeURIComponent(q)}`;
+  const r = await fetch(url, { headers: { Accept: "application/json" } });
+  if (!r.ok) return null;
+  const arr = await r.json().catch(() => []);
+  const first = Array.isArray(arr) ? arr[0] : null;
+  const domain = normalizeDomain(first?.domain || first?.website || "");
+  return domain || null;
+}
+
+async function hunterDomainSearch(domain) {
+  if (!HUNTER_API_KEY) {
+    throw new Error("HUNTER_API_KEY is not set on the server.");
+  }
+  const d = normalizeDomain(domain);
+  if (!d) throw new Error("Valid domain is required (example: company.com)");
+
+  const url = `https://api.hunter.io/v2/domain-search?domain=${encodeURIComponent(
+    d,
+  )}&api_key=${encodeURIComponent(HUNTER_API_KEY)}`;
+  const r = await fetch(url);
+  const payload = await r.json().catch(() => null);
+  if (!r.ok) {
+    const msg = payload?.errors?.[0]?.details || payload?.errors?.[0]?.message || "Hunter request failed";
+    throw new Error(msg);
+  }
+  return payload;
+}
+
+function recruitingTitleKeywords() {
+  return [
+    "Talent Acquisition",
+    "Recruiter",
+    "Recruitment",
+    "HR",
+    "Human Resources",
+    "People Operations",
+    "People Ops",
+  ];
+}
+
+async function apolloPeopleSearch(domain) {
+  if (!APOLLO_API_KEY) {
+    throw new Error("APOLLO_API_KEY is not set on the server.");
+  }
+  if (looksLikeApolloGraphOSKey(APOLLO_API_KEY)) {
+    throw new Error(
+      "APOLLO_API_KEY looks like an Apollo GraphOS (service:...) key. HR Finder Apollo needs an Apollo.io API key.",
+    );
+  }
+  const d = normalizeDomain(domain);
+  if (!d) throw new Error("Valid domain is required (example: company.com)");
+
+  // NOTE: Apollo.io APIs and response shapes can vary by plan and may change.
+  // This is implemented as a best-effort integration; if your Apollo account uses
+  // a different endpoint/shape, set APOLLO_ENDPOINT/APOLLO_BASE_URL and we can adjust mapping.
+  const url = `${APOLLO_BASE_URL}${APOLLO_ENDPOINT}`;
+  const body = {
+    api_key: APOLLO_API_KEY,
+    q_organization_domains: d,
+    page: 1,
+    per_page: 25,
+    person_titles: recruitingTitleKeywords(),
+  };
+
+  const r = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify(body),
+  });
+  const payload = await r.json().catch(() => null);
+  if (!r.ok) {
+    if (r.status === 401) {
+      throw new Error(
+        "Apollo request failed (401). This usually means the API key is invalid or not an Apollo.io API key.",
+      );
+    }
+    const msg =
+      payload?.error ||
+      payload?.message ||
+      payload?.errors?.[0] ||
+      `Apollo request failed (${r.status})`;
+    throw new Error(String(msg));
+  }
+  return payload;
+}
+
+app.get("/api/hr-lookup", async (req, res) => {
+  try {
+    const company = String(req.query.company || "").trim();
+    const domainInput = normalizeDomain(req.query.domain || "");
+    const provider = String(req.query.provider || HR_PROVIDER_DEFAULT || "hunter")
+      .trim()
+      .toLowerCase();
+
+    let domain = domainInput;
+    if (!domain && company) {
+      domain = (await resolveDomainFromCompany(company)) || "";
+    }
+    if (!domain) {
+      return res.status(400).json({
+        ok: false,
+        error:
+          "Provide a company domain (recommended) or a company name (domain will be auto-detected when possible).",
+      });
+    }
+
+    if (provider === "apollo") {
+      const apollo = await apolloPeopleSearch(domain);
+      const people =
+        apollo?.people || apollo?.contacts || apollo?.data?.people || apollo?.data?.contacts || [];
+
+      const contacts = (Array.isArray(people) ? people : [])
+        .map((p) => {
+          const email = String(p?.email || p?.email_address || p?.emailAddress || "").trim().toLowerCase();
+          if (!isValidEmail(email)) return null;
+          const first = p?.first_name || p?.firstName || "";
+          const last = p?.last_name || p?.lastName || "";
+          const name = String(`${first} ${last}`.trim());
+          const position = p?.title || p?.job_title || p?.position || "";
+          return {
+            email,
+            name,
+            position: String(position || ""),
+            seniority: String(p?.seniority || ""),
+            confidence: null,
+            source: "apollo",
+          };
+        })
+        .filter(Boolean)
+        .slice(0, 25);
+
+      return res.json({
+        ok: true,
+        provider,
+        company,
+        domain,
+        contacts,
+        mode: "recruiting_only",
+        phone: null,
+      });
+    }
+
+    // Default: Hunter
+    const hunter = await hunterDomainSearch(domain);
+    const data = hunter?.data || {};
+    const emails = Array.isArray(data.emails) ? data.emails : [];
+    const org = data.organization || {};
+    const phone =
+      org.phone_number ||
+      org.phone ||
+      org.phoneNumber ||
+      data.phone_number ||
+      data.phone ||
+      data.company_phone ||
+      null;
+
+    const allContacts = emails
+      .filter((e) => isValidEmail(e?.value))
+      .map((e) => {
+        const firstName = e?.first_name || "";
+        const lastName = e?.last_name || "";
+        const fullName = `${firstName} ${lastName}`.trim();
+        const position = e?.position || e?.department || "";
+        const seniority = e?.seniority || "";
+        return {
+          email: String(e.value).toLowerCase(),
+          name: fullName,
+          position,
+          seniority,
+          confidence: e?.confidence ?? null,
+          source: "hunter",
+        };
+      })
+      .slice(0, 50);
+
+    const recruitingContacts = allContacts
+      .filter((c) => isRecruitingRole(`${c.position} ${c.seniority}`))
+      .slice(0, 25);
+
+    const contacts =
+      recruitingContacts.length > 0 ? recruitingContacts : allContacts.slice(0, 25);
+
+    return res.json({
+      ok: true,
+      provider: "hunter",
+      company,
+      domain,
+      contacts,
+      mode: recruitingContacts.length > 0 ? "recruiting_only" : "all_emails_fallback",
+      phone: phone ? String(phone) : null,
+    });
+  } catch (e) {
+    res.status(500).json({ ok: false, error: String(e?.message || e) });
+  }
+});
 
 // Downloadable Excel template
 app.get("/api/template.xlsx", (_req, res) => {

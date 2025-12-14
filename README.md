@@ -107,3 +107,14 @@ npm run watch
 - If you only enter **Email** and click send, it uses your **default** Subject/Body/Resume from config/template.
 
 
+
+
+### HR Finder (UI)
+
+- Open the **HR Finder** tab
+- Enter **company domain** (recommended) or company name (domain auto-detect when possible)
+- Requires server env:
+  - `HUNTER_API_KEY` (required)
+Note: This feature is intended for discovering **public recruiting contacts** (HR/Talent Acquisition). Avoid collecting or sharing private/personal phone numbers.
+
+

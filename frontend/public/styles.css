@@ -120,6 +120,28 @@ body {
   gap: 16px;
 }
 
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin: 10px 0 14px;
+}
+
+.tab {
+  border-radius: 999px;
+  border: 1px solid var(--stroke);
+  background: rgba(0, 0, 0, 0.18);
+  color: rgba(255, 255, 255, 0.82);
+  padding: 10px 14px;
+  cursor: pointer;
+  font-weight: 740;
+  font-size: 13px;
+}
+
+.tab.active {
+  border-color: rgba(124, 92, 255, 0.6);
+  box-shadow: 0 0 0 4px rgba(124, 92, 255, 0.14);
+}
+
 @media (max-width: 940px) {
   .grid {
     grid-template-columns: 1fr;
@@ -185,6 +207,7 @@ body {
 
 input[type="text"],
 input[type="email"],
+select,
 textarea {
   width: 100%;
   border-radius: 14px;
@@ -485,6 +508,99 @@ textarea:focus {
     transform: translateY(-6px);
     opacity: 0;
   }
+}
+
+.hrMetaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.hrCards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+@media (max-width: 700px) {
+  .hrCards {
+    grid-template-columns: 1fr;
+  }
+}
+
+.hrCard {
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(0, 0, 0, 0.18);
+  padding: 10px 12px;
+}
+
+.hrName {
+  font-weight: 780;
+  color: rgba(255, 255, 255, 0.92);
+  margin-bottom: 2px;
+}
+
+.hrRole {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 8px;
+}
+
+.hrEmailRow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: center;
+  min-width: 0;
+}
+
+.hrBadge {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.hrEmail {
+  display: inline-block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+  font-size: 12px;
+}
+
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 30px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(0, 0, 0, 0.22);
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.iconBtn:hover {
+  border-color: rgba(61, 225, 255, 0.35);
+}
+
+.iconBtn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.hrBottomRow {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
 }
 
 code {

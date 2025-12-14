@@ -17,6 +17,46 @@ const bulkResumeInput = $("#bulkResume");
 const bulkSendBtn = $("#bulkSendBtn");
 const logoutBtn = $("#logoutBtn");
 
+// Tabs
+const tabSend = $("#tabSend");
+const tabHr = $("#tabHr");
+const panelSend = $("#panelSend");
+const panelHr = $("#panelHr");
+const panelSide = $("#panelSide");
+
+// HR finder
+const hrSearchBtn = $("#hrSearchBtn");
+const hrCopyBtn = $("#hrCopyBtn");
+const hrCopyPhoneBtn = $("#hrCopyPhoneBtn");
+const hrResults = $("#hrResults");
+const providerSel = $("#provider");
+let lastHrContacts = [];
+let lastHrPhone = "";
+
+async function initProviderStatus() {
+  try {
+    const res = await fetch("/api/provider-status");
+    const data = await res.json().catch(() => ({}));
+    if (!providerSel) return;
+    const apolloOpt = providerSel.querySelector('option[value="apollo"]');
+    if (!apolloOpt) return;
+    const apollo = data?.providers?.apollo || {};
+
+    if (!apollo.configured) {
+      apolloOpt.disabled = true;
+      apolloOpt.textContent = "Apollo (set APOLLO_API_KEY)";
+      return;
+    }
+    if (apollo.looksLikeGraphOS) {
+      apolloOpt.disabled = true;
+      apolloOpt.textContent = "Apollo (GraphOS key detected — needs Apollo.io key)";
+      return;
+    }
+  } catch {
+    // ignore
+  }
+}
+
 function toast(type, title, msg, { timeoutMs = 3500 } = {}) {
   let wrap = document.querySelector(".toastWrap");
   if (!wrap) {
@@ -52,6 +92,22 @@ function setLoading(isLoading) {
   if (isLoading) spinner.classList.remove("hidden");
   else spinner.classList.add("hidden");
 }
+
+function setTab(which) {
+  const isSend = which === "send";
+  const isHr = which === "hr";
+  tabSend?.classList.toggle("active", isSend);
+  tabHr?.classList.toggle("active", isHr);
+  panelSend?.classList.toggle("hidden", !isSend);
+  panelHr?.classList.toggle("hidden", !isHr);
+  // Keep the right-side status visible for send; hide for other tabs to give space.
+  panelSide?.classList.toggle("hidden", !isSend);
+}
+
+tabSend?.addEventListener("click", () => setTab("send"));
+tabHr?.addEventListener("click", () => setTab("hr"));
+
+initProviderStatus();
 
 function updateFileUI() {
   const f = resumeInput.files && resumeInput.files[0];
@@ -168,6 +224,156 @@ logoutBtn?.addEventListener("click", async () => {
     await fetch("/api/logout", { method: "POST" });
   } catch {}
   window.location.href = "/login";
+});
+
+function renderHrResults(contacts, meta = {}) {
+  lastHrContacts = Array.isArray(contacts) ? contacts : [];
+  lastHrPhone = meta.phone || "";
+  if (!lastHrContacts.length) {
+    hrResults.className = "status empty";
+    hrResults.innerHTML = "No HR / Talent contacts found.";
+    return;
+  }
+
+  const cards = lastHrContacts
+    .map((c) => {
+      const name = c.name ? escapeHtml(c.name) : "Hiring Team";
+      const pos = c.position ? escapeHtml(c.position) : "HR / Talent";
+      const email = c.email ? escapeHtml(c.email) : "—";
+      const conf =
+        c.confidence === null || c.confidence === undefined ? "—" : escapeHtml(String(c.confidence));
+      return `
+        <div class="hrCard">
+          <div class="hrName">${name}</div>
+          <div class="hrRole">${pos}</div>
+          <div class="hrEmailRow">
+            <code class="hrEmail" title="${email}">${email}</code>
+            <button class="iconBtn js-copy-email" type="button" data-email="${email}" title="Copy email">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M9 9h10v10H9V9Z" stroke="currentColor" stroke-width="2" />
+                <path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="2" />
+              </svg>
+            </button>
+          </div>
+          <div class="hrBottomRow">
+            <span class="hrBadge">Confidence</span>
+            <span class="hrBadge">${conf}</span>
+          </div>
+        </div>
+      `;
+    })
+    .join("");
+
+  hrResults.className = "status";
+  hrResults.innerHTML = `
+    <div style="margin-bottom:10px;color:rgba(255,255,255,.75)">
+      <div class="hrMetaRow">
+        <div>
+          Found <strong>${lastHrContacts.length}</strong> contacts for
+          <code>${escapeHtml(meta.domain || meta.company || "—")}</code>
+        </div>
+        ${
+          meta.phone
+            ? `<div style="color:rgba(255,255,255,.78)">Company phone: <code>${escapeHtml(
+                meta.phone,
+              )}</code></div>`
+            : ""
+        }
+      </div>
+      ${
+        meta.mode === "all_emails_fallback"
+          ? `<div style="margin-top:6px;color:rgba(255,211,109,.9)"><strong>Note:</strong> HR/TA roles not available for this domain; showing all discovered emails.</div>`
+          : ""
+      }
+    </div>
+    <div class="hrCards">${cards}</div>
+  `;
+}
+
+hrResults?.addEventListener("click", async (e) => {
+  const btn = e.target?.closest?.(".js-copy-email");
+  if (!btn) return;
+  const email = btn.getAttribute("data-email") || "";
+  if (!email || email === "—") {
+    toast("bad", "Copy failed", "No email to copy");
+    return;
+  }
+  try {
+    await navigator.clipboard.writeText(email);
+    toast("good", "Copied", email);
+  } catch {
+    toast("bad", "Copy failed", "Browser blocked clipboard. Copy manually.");
+  }
+});
+
+hrSearchBtn?.addEventListener("click", async () => {
+  const company = ($("#company")?.value || "").trim();
+  const domain = ($("#domain")?.value || "").trim();
+  const provider = (providerSel?.value || "hunter").trim();
+
+  if (!company && !domain) {
+    toast("bad", "Missing input", "Enter company name or domain.");
+    return;
+  }
+
+  hrResults.className = "status empty";
+  hrResults.innerHTML = "Searching…";
+
+  try {
+    const qs = new URLSearchParams();
+    if (company) qs.set("company", company);
+    if (domain) qs.set("domain", domain);
+    if (provider) qs.set("provider", provider);
+    const res = await fetch(`/api/hr-lookup?${qs.toString()}`);
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.ok) {
+      const err = data.error || `Request failed (${res.status})`;
+      hrResults.className = "status bad";
+      hrResults.innerHTML = `<strong>Failed.</strong><br/>${escapeHtml(err)}`;
+      toast("bad", "HR lookup failed", err);
+      return;
+    }
+    renderHrResults(data.contacts || [], {
+      domain: data.domain,
+      company: data.company,
+      mode: data.mode,
+      phone: data.phone,
+    });
+    toast("good", "HR lookup complete", `${(data.contacts || []).length} contacts found`);
+  } catch (e) {
+    const msg = String(e?.message || e);
+    hrResults.className = "status bad";
+    hrResults.innerHTML = `<strong>Error.</strong><br/>${escapeHtml(msg)}`;
+    toast("bad", "Error", msg);
+  }
+});
+
+hrCopyBtn?.addEventListener("click", async () => {
+  const emails = (lastHrContacts || []).map((c) => c.email).filter(Boolean);
+  if (!emails.length) {
+    toast("bad", "Nothing to copy", "Search first to get emails.");
+    return;
+  }
+  const text = emails.join("\n");
+  try {
+    await navigator.clipboard.writeText(text);
+    toast("good", "Copied", `${emails.length} emails copied`);
+  } catch {
+    toast("bad", "Copy failed", "Browser blocked clipboard. Select and copy manually.");
+  }
+});
+
+hrCopyPhoneBtn?.addEventListener("click", async () => {
+  if (!lastHrPhone) {
+    toast("bad", "No phone found", "This provider did not return a company phone number.");
+    return;
+  }
+  try {
+    await navigator.clipboard.writeText(String(lastHrPhone));
+    toast("good", "Copied", "Phone number copied");
+  } catch {
+    toast("bad", "Copy failed", "Browser blocked clipboard. Copy manually from the result.");
+  }
 });
 
 bulkSendBtn?.addEventListener("click", async () => {
