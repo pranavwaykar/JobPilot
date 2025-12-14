@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Job Mailer — Send Application</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="bg"></div>
+    <div class="shell">
+      <header class="header">
+        <div class="brand">
+          <div class="logo">JM</div>
+          <div>
+            <div class="title">Job Mailer</div>
+            <div class="subtitle">Send your application in one clean flow</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="pill" aria-label="Status">
+            <span class="dot"></span>
+          </div>
+          <button id="logoutBtn" class="btn secondary" type="button" style="min-width:auto;padding:10px 12px">
+            Logout
+          </button>
+        </div>
+      </header>
+
+      <main class="grid">
+        <section class="card">
+          <div class="cardTitle">Compose & Send</div>
+          <div class="cardHint">
+            <strong>Email is mandatory.</strong> Subject / Body / Resume are optional. If you leave
+            them empty, defaults will be used.
+          </div>
+
+          <form id="sendForm" class="form" autocomplete="off">
+            <div class="row">
+              <label class="label" for="email">Recipient email <span class="req">*</span></label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                placeholder="hr@company.com"
+                required
+              />
+            </div>
+
+            <div class="row twoCol">
+              <div>
+                <label class="label" for="name">Recipient name (optional)</label>
+                <input id="name" name="name" type="text" placeholder="HR / Recruiter name" />
+              </div>
+              <div>
+                <label class="label" for="subject">Subject (optional)</label>
+                <input
+                  id="subject"
+                  name="subject"
+                  type="text"
+                  placeholder="Application for MERN Stack Developer Role…"
+                />
+              </div>
+            </div>
+
+            <div class="row">
+              <label class="label" for="body">Body (optional)</label>
+              <textarea
+                id="body"
+                name="body"
+                rows="9"
+                placeholder="If empty, the default application template will be used."
+              ></textarea>
+              <div class="micro">
+                Tip: leave body empty to use your default template. Add custom body only for this one
+                email.
+              </div>
+            </div>
+
+            <div class="row">
+              <label class="label">Resume (optional)</label>
+              <div id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="Upload resume">
+                <input id="resume" name="resume" type="file" accept=".pdf" />
+                <div class="dzInner">
+                  <div class="dzIcon">⬆</div>
+                  <div class="dzText">
+                    <div class="dzTitle">Drag & drop PDF here</div>
+                    <div class="dzSub">or click to choose file (PDF only)</div>
+                  </div>
+                </div>
+                <div id="filePill" class="filePill hidden">
+                  <span id="fileName"></span>
+                  <button id="clearFile" type="button" class="linkBtn">Remove</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="actions">
+              <button id="sendBtn" class="btn" type="submit">
+                <span class="btnLabel">Send Email</span>
+                <span class="btnSpinner hidden" aria-hidden="true"></span>
+              </button>
+              <button id="resetBtn" class="btn secondary" type="button">Reset</button>
+            </div>
+          </form>
+        </section>
+
+        <aside class="card">
+          <div class="cardTitle">Status</div>
+          <div id="status" class="status empty">
+            Fill the form and click <strong>Send Email</strong>.
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="cardTitle">Bulk Send (Excel)</div>
+          <div class="cardHint">
+            Upload an <strong>.xlsx</strong> file and send to every row. Columns: <code>email</code>,
+            <code>recipient name</code>, <code>subject</code>, <code>body</code>.
+          </div>
+
+          <div class="row" style="gap:10px">
+            <a class="dl" href="/template.xlsx">Download Excel template</a>
+
+            <label class="label" for="excel">Excel file (.xlsx) <span class="req">*</span></label>
+            <input id="excel" type="file" accept=".xlsx" />
+
+            <label class="label" for="bulkResume">Resume for all rows (optional PDF)</label>
+            <input id="bulkResume" type="file" accept=".pdf" />
+
+            <button id="bulkSendBtn" class="btn" type="button">Send Bulk Emails</button>
+            <div class="micro">
+              If a row’s <strong>subject/body</strong> is empty, defaults are used. If <strong>body</strong>
+              is empty, your default template is used.
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="cardTitle">Defaults (when fields are empty)</div>
+          <ul class="list">
+            <li><strong>Subject</strong>: from your config (`SUBJECT`)</li>
+            <li><strong>Body</strong>: default application template</li>
+            <li><strong>Resume</strong>: `assets/Shubham_Pawar_3Yr.pdf`</li>
+          </ul>
+        </aside>
+      </main>
+
+      <footer class="footer">
+        Runs locally. Uses SMTP settings from <code>.env</code> (or <code>env.example</code> fallback).
+      </footer>
+    </div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
+
+
