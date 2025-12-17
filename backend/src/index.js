@@ -4,7 +4,7 @@ const { startWatcher } = require("./watcher");
 const { sendPending } = require("./send");
 
 async function main() {
-  console.log("Job Mailer starting...");
+  console.log("Job Pilot starting...");
   console.log("Env loaded from:", config.meta?.loadedEnvFile || "(unknown)");
   console.log("Recipients CSV:", config.paths.recipientsCsv);
   console.log("Sent log:", config.paths.sentJson);
@@ -22,7 +22,7 @@ async function main() {
     },
   });
 
-  console.log("Job Mailer is running. (Ctrl+C to stop)");
+  console.log("Job Pilot is running. (Ctrl+C to stop)");
 }
 
 main().catch((e) => {

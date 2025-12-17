@@ -121,11 +121,11 @@ function main() {
   const docsDir = path.resolve(root, "docs");
 
   const docs = [
-    { in: "01_TECHNICAL_DOC.md", out: "01_TECHNICAL_DOC.pdf", title: "Job Mailer — Technical Documentation" },
-    { in: "02_FLOW_DOC.md", out: "02_FLOW_DOC.pdf", title: "Job Mailer — Flow Documentation" },
-    { in: "03_INTERVIEW_EXPLANATION.md", out: "03_INTERVIEW_EXPLANATION.pdf", title: "Job Mailer — Interview Explanation" },
-    { in: "04_QUICKSTART.md", out: "04_QUICKSTART.pdf", title: "Job Mailer — Quickstart" },
-    { in: "05_API_REFERENCE.md", out: "05_API_REFERENCE.pdf", title: "Job Mailer — API Reference" },
+    { in: "01_TECHNICAL_DOC.md", out: "01_TECHNICAL_DOC.pdf", title: "Job Pilot — Technical Documentation" },
+    { in: "02_FLOW_DOC.md", out: "02_FLOW_DOC.pdf", title: "Job Pilot — Flow Documentation" },
+    { in: "03_INTERVIEW_EXPLANATION.md", out: "03_INTERVIEW_EXPLANATION.pdf", title: "Job Pilot — Interview Explanation" },
+    { in: "04_QUICKSTART.md", out: "04_QUICKSTART.pdf", title: "Job Pilot — Quickstart" },
+    { in: "05_API_REFERENCE.md", out: "05_API_REFERENCE.pdf", title: "Job Pilot — API Reference" },
   ];
 
   for (const d of docs) {

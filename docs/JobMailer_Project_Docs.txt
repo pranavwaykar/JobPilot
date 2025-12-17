@@ -1,4 +1,4 @@
-JOB MAILER — PROJECT DOCUMENTATION
+Job Pilot — PROJECT DOCUMENTATION
 Generated from docs/*.md
 Generated at: 2025-12-17T05:14:34.833Z
 ======================================================================
@@ -6,9 +6,9 @@ Generated at: 2025-12-17T05:14:34.833Z
 ======================================================================
 FILE: 01_TECHNICAL_DOC.md
 ======================================================================
-Job Mailer — Technical Documentation
+Job Pilot — Technical Documentation
 1) What this project is
-Job Mailer is a Node.js automation tool + local web UI that helps send job application emails reliably and repeatedly without re-sending to the same recipient.
+Job Pilot is a Node.js automation tool + local web UI that helps send job application emails reliably and repeatedly without re-sending to the same recipient.
 
 It supports three sending modes:
 - UI single send: fill a form, attach a resume (optional), and send.
@@ -205,7 +205,7 @@ Important operational note:
 ======================================================================
 FILE: 02_FLOW_DOC.md
 ======================================================================
-Job Mailer — Flow Documentation (End-to-End)
+Job Pilot — Flow Documentation (End-to-End)
 A) Big picture
 This project has two major execution paths:
 
@@ -369,9 +369,9 @@ This system is reliable because:
 ======================================================================
 FILE: 03_INTERVIEW_EXPLANATION.md
 ======================================================================
-Job Mailer — How to Explain to an Interviewer (Story + Highlights)
+Job Pilot — How to Explain to an Interviewer (Story + Highlights)
 1) 20–30 second pitch (elevator pitch)
-“I built a Node.js tool called Job Mailer that automates job application emails. It supports both a headless automation mode and a clean local web UI. The automation mode reads a recipients CSV, sends only the pending emails on a schedule, and also watches the CSV so adding a new recipient triggers an immediate send. The UI lets me send single or bulk emails, manage SMTP/default templates, and even discover HR emails using external provider APIs. Everything is logged locally to JSON and Excel so I can track what was sent and avoid duplicates.”
+“I built a Node.js tool called Job Pilot that automates job application emails. It supports both a headless automation mode and a clean local web UI. The automation mode reads a recipients CSV, sends only the pending emails on a schedule, and also watches the CSV so adding a new recipient triggers an immediate send. The UI lets me send single or bulk emails, manage SMTP/default templates, and even discover HR emails using external provider APIs. Everything is logged locally to JSON and Excel so I can track what was sent and avoid duplicates.”
 
 ---
 2) The problem I solved (what motivated the project)
@@ -474,7 +474,7 @@ Why it impresses: attention to content quality and maintainability.
 ======================================================================
 FILE: 04_QUICKSTART.md
 ======================================================================
-Job Mailer — Quickstart (Necessary Doc)
+Job Pilot — Quickstart (Necessary Doc)
 Prerequisites
 - Node.js installed
 - A working SMTP account (Gmail App Password recommended)
@@ -524,7 +524,7 @@ Troubleshooting
 ======================================================================
 FILE: 05_API_REFERENCE.md
 ======================================================================
-Job Mailer — API Reference (Necessary Doc)
+Job Pilot — API Reference (Necessary Doc)
 
 Base URL: the UI server host/port (default http://localhost:4545).
 Note: If UI auth is enabled, you must login first so the cookie session is present.

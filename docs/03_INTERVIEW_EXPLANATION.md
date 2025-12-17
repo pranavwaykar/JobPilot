@@ -1,7 +1,7 @@
-## Job Mailer — How to Explain to an Interviewer (Story + Highlights)
+## Job Pilot — How to Explain to an Interviewer (Story + Highlights)
 
 ### 1) 20–30 second pitch (elevator pitch)
-“I built a Node.js tool called Job Mailer that automates job application emails. It supports both a headless automation mode and a clean local web UI. The automation mode reads a recipients CSV, sends only the pending emails on a schedule, and also watches the CSV so adding a new recipient triggers an immediate send. The UI lets me send single or bulk emails, manage SMTP/default templates, and even discover HR emails using external provider APIs. Everything is logged locally to JSON and Excel so I can track what was sent and avoid duplicates.”
+“I built a Node.js tool called Job Pilot that automates job application emails. It supports both a headless automation mode and a clean local web UI. The automation mode reads a recipients CSV, sends only the pending emails on a schedule, and also watches the CSV so adding a new recipient triggers an immediate send. The UI lets me send single or bulk emails, manage SMTP/default templates, and even discover HR emails using external provider APIs. Everything is logged locally to JSON and Excel so I can track what was sent and avoid duplicates.”
 
 ---
 

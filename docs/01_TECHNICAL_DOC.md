@@ -1,7 +1,7 @@
-## Job Mailer — Technical Documentation
+## Job Pilot — Technical Documentation
 
 ### 1) What this project is
-Job Mailer is a Node.js automation tool + local web UI that helps send job application emails reliably and repeatedly without re-sending to the same recipient.
+Job Pilot is a Node.js automation tool + local web UI that helps send job application emails reliably and repeatedly without re-sending to the same recipient.
 
 It supports **three sending modes**:
 - **UI single send**: fill a form, attach a resume (optional), and send.

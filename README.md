@@ -1,4 +1,4 @@
-## Job Mailer (Scheduled + Auto-send on New Recipient)
+## Job Pilot (Scheduled + Auto-send on New Recipient)
 
 This tool sends your job application email (with your resume attached) to a list of recipients:
 

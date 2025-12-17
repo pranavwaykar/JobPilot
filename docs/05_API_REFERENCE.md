@@ -1,4 +1,4 @@
-## Job Mailer — API Reference (Necessary Doc)
+## Job Pilot — API Reference (Necessary Doc)
 
 Base URL: the UI server host/port (default `http://localhost:4545`).
 

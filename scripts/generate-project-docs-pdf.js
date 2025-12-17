@@ -126,7 +126,7 @@ function readDoc(p) {
 
 function buildCombinedText(docPaths) {
   const parts = [];
-  parts.push("JOB MAILER — PROJECT DOCUMENTATION");
+  parts.push("Job Pilot — PROJECT DOCUMENTATION");
   parts.push("Generated from docs/*.md");
   parts.push(`Generated at: ${new Date().toISOString()}`);
   parts.push("=".repeat(70));
@@ -165,10 +165,10 @@ function main() {
   const combined = buildCombinedText(docPaths);
   const pdf = textToSimplePdfBuffer(combined);
 
-  const outPath = path.resolve(docsDir, "JobMailer_Project_Docs.pdf");
+  const outPath = path.resolve(docsDir, "JobPilot_Project_Docs.pdf");
   fs.writeFileSync(outPath, pdf);
 
-  const outTxt = path.resolve(docsDir, "JobMailer_Project_Docs.txt");
+  const outTxt = path.resolve(docsDir, "JobPilot_Project_Docs.txt");
   fs.writeFileSync(outTxt, combined, "utf8");
 
   console.log(`Wrote: ${outPath}`);

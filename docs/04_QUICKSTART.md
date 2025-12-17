@@ -1,4 +1,4 @@
-## Job Mailer — Quickstart (Necessary Doc)
+## Job Pilot — Quickstart (Necessary Doc)
 
 ### Prerequisites
 - Node.js installed
