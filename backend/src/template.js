@@ -26,7 +26,7 @@ function bodyAlreadyHasSignature(bodyText) {
   if (!b.trim()) return false;
   const v = b.toLowerCase();
   // tolerate newlines/spaces between words
-  return /warm\s+regards/.test(v) || /regards\s*,/.test(v) || /shubham\s+pawar/.test(v);
+  return /warm\s+regards/.test(v) || /regards\s*,/.test(v) || /pranav\s+waykar/.test(v);
 }
 
 function firstNameOnly(fullName) {
@@ -47,7 +47,7 @@ function buildEmail({ recipientName, recipientEmail, subject }) {
   const defaultBody = loadDefaultBodyFromUiSettings();
   const signatureText = [
     "Warm regards,",
-    "Shubham Pawar",
+    "Pranav Waykar",
     "MERN Stack Developer | Software Engineer",
     "Immediate Joiner",
   ].join("\n");
@@ -61,7 +61,7 @@ function buildEmail({ recipientName, recipientEmail, subject }) {
   const signatureHtml = `
     <p>
       Warm regards,<br />
-      Shubham Pawar<br />
+      Pranav Waykar<br />
       MERN Stack Developer | Software Engineer<br />
       Immediate Joiner
     </p>

@@ -35,7 +35,7 @@ If you **don't** create `.env`, the app will fall back to loading `env.example`.
 
 3. Put your resume PDF here:
 
-- `job-mailer/assets/Shubham_Pawar_3Yr.pdf`
+- `job-mailer/assets/Pranav_Waykar.pdf`
 
 4. Add recipients to:
 

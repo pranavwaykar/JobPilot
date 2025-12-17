@@ -593,12 +593,12 @@ function buildOverriddenEmail({ recipientName, recipientEmail, bodyText }) {
   const bodyHasSignature = (() => {
     if (!rawBody) return false;
     const b = rawBody.toLowerCase();
-    return /warm\s+regards/.test(b) || /regards\s*,/.test(b) || /shubham\s+pawar/.test(b);
+    return /warm\s+regards/.test(b) || /regards\s*,/.test(b) || /pranav\s+waykar/.test(b);
   })();
 
   const signatureText = [
     "Warm regards,",
-    "Shubham Pawar",
+    "Pranav Waykar",
     "MERN Stack Developer | Software Engineer",
     "Immediate Joiner",
   ].join("\n");
@@ -616,7 +616,7 @@ function buildOverriddenEmail({ recipientName, recipientEmail, bodyText }) {
         ? ""
         : `<p>
             Warm regards,<br />
-            Shubham Pawar<br />
+            Pranav Waykar<br />
             MERN Stack Developer | Software Engineer<br />
             Immediate Joiner
           </p>`

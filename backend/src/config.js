@@ -49,7 +49,7 @@ module.exports = {
     recipientsCsv: path.resolve(ROOT, "data/recipients.csv"),
     sentJson: path.resolve(ROOT, "data/sent.json"),
     sentXlsx: path.resolve(ROOT, env("SENT_XLSX_PATH", "data/sent.xlsx")),
-    resumePath: path.resolve(ROOT, env("RESUME_PATH", "assets/Shubham_Pawar_3Yr.pdf")),
+    resumePath: path.resolve(ROOT, env("RESUME_PATH", "assets/Pranav_Waykar.pdf")),
   },
   smtp: {
     host: env("SMTP_HOST", ""),
@@ -60,7 +60,7 @@ module.exports = {
   },
   from: {
     email: env("FROM_EMAIL", env("SMTP_USER", "")),
-    name: env("FROM_NAME", "Shubham Pawar"),
+    name: env("FROM_NAME", "Pranav Waykar"),
   },
   schedule: {
     cron: env("SCHEDULE_CRON", "0 10 * * *"),
