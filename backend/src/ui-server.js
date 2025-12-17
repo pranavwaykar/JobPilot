@@ -817,6 +817,10 @@ app.use((req, res, next) => {
 // Serve UI (protected if auth enabled)
 app.use(express.static(UI_DIR));
 
+// Also serve project assets (for favicon and images)
+// Exposes files under `/assets/*` mapped from the repository's `assets` directory.
+app.use("/assets", express.static(path.resolve(config.paths.root, "assets")));
+
 // -------------------------
 // HR / Talent lookup (optional)
 // -------------------------
