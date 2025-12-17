@@ -811,6 +811,15 @@ app.use((req, res, next) => {
   if (req.path === "/health") return next();
   if (req.path === "/login") return next();
   if (req.path === "/api/login") return next();
+  // Allow static assets and common favicon paths without auth,
+  // so the login page can load icons/images.
+  if (req.path.startsWith("/assets/")) return next();
+  if (
+    req.path === "/favicon.ico" ||
+    req.path === "/favicon.png" ||
+    req.path.startsWith("/apple-touch-icon")
+  )
+    return next();
   return requireAuth(req, res, next);
 });
 
@@ -820,6 +829,12 @@ app.use(express.static(UI_DIR));
 // Also serve project assets (for favicon and images)
 // Exposes files under `/assets/*` mapped from the repository's `assets` directory.
 app.use("/assets", express.static(path.resolve(config.paths.root, "assets")));
+
+// Favicon fallbacks at common paths
+const FAVICON_PATH = path.resolve(config.paths.root, "assets", "message.png");
+app.get("/favicon.ico", (_req, res) => res.sendFile(FAVICON_PATH));
+app.get("/favicon.png", (_req, res) => res.sendFile(FAVICON_PATH));
+app.get("/apple-touch-icon.png", (_req, res) => res.sendFile(FAVICON_PATH));
 
 // -------------------------
 // HR / Talent lookup (optional)
