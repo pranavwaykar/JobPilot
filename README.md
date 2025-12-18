@@ -10,6 +10,16 @@ Project layout:
 - **Backend**: `backend/src/` (Express API + SMTP sender + scheduler/watcher)
 - **Frontend**: `frontend/public/` (static UI)
 
+
+Project Snapshots:
+
+<img width="1346" height="604" alt="Screenshot 2025-12-18 180524" src="https://github.com/user-attachments/assets/9d9b984f-f97c-4e47-8aa8-7d35d480b3e7" />
+
+<img width="1366" height="599" alt="Screenshot 2025-12-18 180613" src="https://github.com/user-attachments/assets/cfba3433-1aa4-4867-a367-9d71928b6eed" />
+
+<img width="1348" height="602" alt="Screenshot 2025-12-18 180644" src="https://github.com/user-attachments/assets/2a02c880-045a-4a18-a50c-9022aa237537" />
+
+
 ### 1) Prerequisites
 
 - Node.js 18+ (recommended)
